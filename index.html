@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LM10 vs CR7</title>
+
+<style>
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #e9e9e9;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#turn {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+#score {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+#scoreLM10 {
+    color: red;
+}
+
+#scoreCR7 {
+    color: #b59b00;
+}
+
+#round {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+#message {
+    min-height: 30px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+#board {
+    width: 306px;
+    height: 306px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+
+    gap: 3px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+
+    box-sizing: border-box;
+
+    border: 2px solid black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.white {
+    background: white;
+}
+
+.blue {
+    background: blue;
+}
+
+.black {
+    background: black;
+}
+
+.label {
+    position: absolute;
+
+    top: 5px;
+    left: 6px;
+
+    font-size: 12px;
+
+    pointer-events: none;
+}
+
+.piece {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    border: 3px solid white;
+
+    user-select: none;
+}
+
+.red {
+    background: red;
+    color: white;
+}
+
+.yellow {
+    background: yellow;
+    color: black;
+    border-color: black;
+}
+
+.selected {
+    outline: 4px solid lime;
+    transform: scale(1.12);
+}
+
+.buttons {
+    margin-top: 20px;
+}
+
+button {
+    margin: 5px;
+
+    padding: 12px 20px;
+
+    border: 0;
+    border-radius: 6px;
+
+    background: #222;
+    color: white;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #444;
+}
+
+#newMatchButton {
+    background: #006400;
+}
+
+#newMatchButton:hover {
+    background: #008000;
+}
+
+.finalWinner {
+    font-size: 22px;
+    color: green;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>⚽ LM10 vs CR7 ⚽</h1>
+
+<div id="turn">
+    Tour de LM10
+</div>
+
+<div id="score">
+
+    <span style="color:red;">LM10</span>
+    :
+    <span id="scoreLM10">0</span>
+
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+
+    <span style="color:#b59b00;">CR7</span>
+    :
+    <span id="scoreCR7">0</span>
+
+</div>
+
+<div id="round">
+    Manche :
+    <span id="roundNumber">1</span>
+</div>
+
+<div id="message">
+    Cliquez sur un pion rouge.
+</div>
+
+
+<!--
+    PLATEAU
+
+    A E B
+    H O F
+    D G C
+-->
+
+<div id="board">
+
+    <div class="cell white" data-position="A">
+        <span class="label">A</span>
+        <div class="piece red" data-position="A">1</div>
+    </div>
+
+    <div class="cell blue" data-position="E">
+        <span class="label">E</span>
+        <div class="piece yellow" data-position="E">2</div>
+    </div>
+
+    <div class="cell black" data-position="B">
+        <span class="label">B</span>
+        <div class="piece red" data-position="B">2</div>
+    </div>
+
+    <div class="cell blue" data-position="H">
+        <span class="label">H</span>
+    </div>
+
+    <div class="cell black" data-position="O">
+        <span class="label">O</span>
+    </div>
+
+    <div class="cell white" data-position="F">
+        <span class="label">F</span>
+        <div class="piece yellow" data-position="F">3</div>
+    </div>
+
+    <div class="cell black" data-position="D">
+        <span class="label">D</span>
+        <div class="piece yellow" data-position="D">1</div>
+    </div>
+
+    <div class="cell white" data-position="G">
+        <span class="label">G</span>
+    </div>
+
+    <div class="cell blue" data-position="C">
+        <span class="label">C</span>
+        <div class="piece red" data-position="C">3</div>
+    </div>
+
+</div>
+
+
+<div class="buttons">
+
+    <button id="continueButton">
+        CONTINUER
+    </button>
+
+    <button id="stopButton">
+        ARRÊTER
+    </button>
+
+    <button id="newMatchButton">
+        NOUVEAU MATCH
+    </button>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+
+let currentPlayer = "LM10";
+
+let selectedPosition = null;
+
+let roundFinished = false;
+
+let matchFinished = false;
+
+let scoreLM10 = 0;
+
+let scoreCR7 = 0;
+
+let roundNumber = 1;
+
+const winningScore = 3;
+
+
+/* =========================================================
+   LIGNES GAGNANTES
+========================================================= */
+
+const winningLines = [
+
+    ["A", "E", "B"],
+    ["H", "O", "F"],
+    ["D", "G", "C"],
+
+    ["A", "H", "D"],
+    ["E", "O", "G"],
+    ["B", "F", "C"],
+
+    ["A", "O", "C"],
+    ["B", "O", "D"]
+
+];
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const turnText =
+    document.getElementById("turn");
+
+const messageText =
+    document.getElementById("message");
+
+const scoreLM10Text =
+    document.getElementById("scoreLM10");
+
+const scoreCR7Text =
+    document.getElementById("scoreCR7");
+
+const roundNumberText =
+    document.getElementById("roundNumber");
+
+const continueButton =
+    document.getElementById("continueButton");
+
+const stopButton =
+    document.getElementById("stopButton");
+
+const newMatchButton =
+    document.getElementById("newMatchButton");
+
+
+/* =========================================================
+   TROUVER UNE CASE
+========================================================= */
+
+function getCell(position) {
+
+    return document.querySelector(
+        '.cell[data-position="' + position + '"]'
+    );
+
+}
+
+
+/* =========================================================
+   TROUVER UN PION
+========================================================= */
+
+function getPiece(position) {
+
+    const cell = getCell(position);
+
+    if (!cell) {
+        return null;
+    }
+
+    return cell.querySelector(".piece");
+
+}
+
+
+/* =========================================================
+   TROUVER LE JOUEUR
+========================================================= */
+
+function getPlayer(position) {
+
+    const piece = getPiece(position);
+
+    if (!piece) {
+        return null;
+    }
+
+    if (piece.classList.contains("red")) {
+        return "LM10";
+    }
+
+    if (piece.classList.contains("yellow")) {
+        return "CR7";
+    }
+
+    return null;
+
+}
+
+
+/* =========================================================
+   ACTUALISER SCORE
+========================================================= */
+
+function updateScore() {
+
+    scoreLM10Text.textContent = scoreLM10;
+
+    scoreCR7Text.textContent = scoreCR7;
+
+    roundNumberText.textContent = roundNumber;
+
+}
+
+
+/* =========================================================
+   SELECTION
+========================================================= */
+
+function selectPawn(position) {
+
+    if (roundFinished || matchFinished) {
+        return;
+    }
+
+    const piece = getPiece(position);
+
+    if (!piece) {
+
+        messageText.textContent =
+            "Cliquez sur votre pion.";
+
+        return;
+    }
+
+    if (getPlayer(position) !== currentPlayer) {
+
+        messageText.textContent =
+            "Ce pion appartient à l'adversaire.";
+
+        return;
+    }
+
+    const old =
+        document.querySelector(".piece.selected");
+
+    if (old) {
+        old.classList.remove("selected");
+    }
+
+    piece.classList.add("selected");
+
+    selectedPosition = position;
+
+    messageText.textContent =
+        "Pion sélectionné. Cliquez sur une case vide.";
+
+}
+
+
+/* =========================================================
+   DEPLACEMENT
+========================================================= */
+
+function movePawn(targetPosition) {
+
+    if (roundFinished || matchFinished) {
+        return;
+    }
+
+    if (selectedPosition === null) {
+        return;
+    }
+
+
+    /* Désélection */
+
+    if (targetPosition === selectedPosition) {
+
+        const piece =
+            getPiece(selectedPosition);
+
+        if (piece) {
+            piece.classList.remove("selected");
+        }
+
+        selectedPosition = null;
+
+        messageText.textContent =
+            "Pion désélectionné.";
+
+        return;
+    }
+
+
+    /* Destination occupée */
+
+    const destination =
+        getPiece(targetPosition);
+
+    if (destination) {
+
+        if (
+            getPlayer(targetPosition) ===
+            currentPlayer
+        ) {
+
+            selectPawn(targetPosition);
+
+            return;
+        }
+
+        messageText.textContent =
+            "Cette case est occupée.";
+
+        return;
+    }
+
+
+    /* Pion sélectionné */
+
+    const piece =
+        getPiece(selectedPosition);
+
+    if (!piece) {
+        selectedPosition = null;
+        return;
+    }
+
+
+    /* Case cible */
+
+    const cell =
+        getCell(targetPosition);
+
+    if (!cell) {
+        return;
+    }
+
+
+    /* Déplacement */
+
+    piece.remove();
+
+    cell.appendChild(piece);
+
+    piece.dataset.position =
+        targetPosition;
+
+    piece.classList.remove("selected");
+
+    selectedPosition = null;
+
+
+    playMoveSound();
+
+
+    /* =====================================================
+       VERIFICATION IMMEDIATE DE LA VICTOIRE
+    ===================================================== */
+
+    const winner =
+        checkWinner();
+
+
+    if (winner) {
+
+        givePoint(winner);
+
+        return;
+    }
+
+
+    /* Changer de joueur */
+
+    if (currentPlayer === "LM10") {
+
+        currentPlayer = "CR7";
+
+    } else {
+
+        currentPlayer = "LM10";
+
+    }
+
+
+    updateInterface();
+
+}
+
+
+/* =========================================================
+   VERIFIER LES LIGNES GAGNANTES
+========================================================= */
+
+function checkWinner() {
+
+    for (
+        let i = 0;
+        i < winningLines.length;
+        i++
+    ) {
+
+        const line =
+            winningLines[i];
+
+
+        const p1 =
+            getPlayer(line[0]);
+
+        const p2 =
+            getPlayer(line[1]);
+
+        const p3 =
+            getPlayer(line[2]);
+
+
+        if (
+            p1 !== null &&
+            p1 === p2 &&
+            p2 === p3
+        ) {
+
+            return p1;
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+/* =========================================================
+   AJOUTER UN POINT
+========================================================= */
+
+function givePoint(winner) {
+
+    roundFinished = true;
+
+    selectedPosition = null;
+
+
+    /* ===============================
+       AJOUT DU POINT
+    =============================== */
+
+    if (winner === "LM10") {
+
+        scoreLM10 = scoreLM10 + 1;
+
+    }
+
+
+    if (winner === "CR7") {
+
+        scoreCR7 = scoreCR7 + 1;
+
+    }
+
+
+    /* ===============================
+       AFFICHER LE NOUVEAU SCORE
+    =============================== */
+
+    updateScore();
+
+
+    /* ===============================
+       SON
+    =============================== */
+
+    playVictorySound();
+
+
+    /* ===============================
+       MATCH GAGNE ?
+    =============================== */
+
+    if (scoreLM10 === 3) {
+
+        matchFinished = true;
+
+        turnText.textContent =
+            "🏆 LM10 REMPORTE LE MATCH !";
+
+        messageText.textContent =
+            "LM10 gagne le match avec 3 points !";
+
+        messageText.classList.add(
+            "finalWinner"
+        );
+
+        return;
+    }
+
+
+    if (scoreCR7 === 3) {
+
+        matchFinished = true;
+
+        turnText.textContent =
+            "🏆 CR7 REMPORTE LE MATCH !";
+
+        messageText.textContent =
+            "CR7 gagne le match avec 3 points !";
+
+        messageText.classList.add(
+            "finalWinner"
+        );
+
+        return;
+    }
+
+
+    /* ===============================
+       FIN DE LA MANCHE
+    =============================== */
+
+    turnText.textContent =
+        "🏆 " + winner + " GAGNE LA MANCHE !";
+
+
+    messageText.textContent =
+        winner +
+        " gagne la manche et marque +1 point ! " +
+        "Cliquez sur CONTINUER.";
+
+}
+
+
+/* =========================================================
+   INTERFACE
+========================================================= */
+
+function updateInterface() {
+
+    if (roundFinished || matchFinished) {
+        return;
+    }
+
+    turnText.textContent =
+        "Tour de " +
+        currentPlayer;
+
+
+    if (selectedPosition === null) {
+
+        if (currentPlayer === "LM10") {
+
+            messageText.textContent =
+                "Cliquez sur un pion rouge.";
+
+        } else {
+
+            messageText.textContent =
+                "Cliquez sur un pion jaune.";
+
+        }
+
+    } else {
+
+        messageText.textContent =
+            "Cliquez sur une case où déplacer le pion.";
+
+    }
+
+}
+
+
+/* =========================================================
+   RECREER LE PLATEAU
+========================================================= */
+
+function resetBoard() {
+
+    const cells =
+        document.querySelectorAll(".cell");
+
+
+    cells.forEach(function(cell) {
+
+        const pieces =
+            cell.querySelectorAll(".piece");
+
+
+        pieces.forEach(function(piece) {
+
+            piece.remove();
+
+        });
+
+    });
+
+
+    createPiece("A", "red", "1");
+    createPiece("B", "red", "2");
+    createPiece("C", "red", "3");
+
+    createPiece("D", "yellow", "1");
+    createPiece("E", "yellow", "2");
+    createPiece("F", "yellow", "3");
+
+}
+
+
+/* =========================================================
+   CREER UN PION
+========================================================= */
+
+function createPiece(position, color, number) {
+
+    const cell =
+        getCell(position);
+
+    const piece =
+        document.createElement("div");
+
+
+    piece.className =
+        "piece " + color;
+
+
+    piece.dataset.position =
+        position;
+
+
+    piece.textContent =
+        number;
+
+
+    cell.appendChild(piece);
+
+}
+
+
+/* =========================================================
+   CONTINUER
+========================================================= */
+
+continueButton.addEventListener(
+    "click",
+    function() {
+
+        if (matchFinished) {
+
+            messageText.textContent =
+                "Le match est terminé. Cliquez sur NOUVEAU MATCH.";
+
+            return;
+        }
+
+
+        if (!roundFinished) {
+
+            messageText.textContent =
+                "La manche n'est pas encore terminée.";
+
+            return;
+        }
+
+
+        roundNumber++;
+
+        currentPlayer = "LM10";
+
+        selectedPosition = null;
+
+        roundFinished = false;
+
+
+        messageText.classList.remove(
+            "finalWinner"
+        );
+
+
+        resetBoard();
+
+        updateScore();
+
+        updateInterface();
+
+    }
+);
+
+
+/* =========================================================
+   ARRETER
+========================================================= */
+
+stopButton.addEventListener(
+    "click",
+    function() {
+
+        if (matchFinished) {
+            return;
+        }
+
+
+        roundFinished = true;
+
+        selectedPosition = null;
+
+
+        const selected =
+            document.querySelector(
+                ".piece.selected"
+            );
+
+
+        if (selected) {
+            selected.classList.remove(
+                "selected"
+            );
+        }
+
+
+        turnText.textContent =
+            "⛔ PARTIE ARRÊTÉE";
+
+
+        messageText.textContent =
+            "Cliquez sur CONTINUER pour recommencer une manche.";
+
+    }
+);
+
+
+/* =========================================================
+   NOUVEAU MATCH
+========================================================= */
+
+newMatchButton.addEventListener(
+    "click",
+    function() {
+
+        scoreLM10 = 0;
+
+        scoreCR7 = 0;
+
+        roundNumber = 1;
+
+        currentPlayer = "LM10";
+
+        selectedPosition = null;
+
+        roundFinished = false;
+
+        matchFinished = false;
+
+
+        messageText.classList.remove(
+            "finalWinner"
+        );
+
+
+        resetBoard();
+
+        updateScore();
+
+        updateInterface();
+
+    }
+);
+
+
+/* =========================================================
+   CLIC SUR LES CASES
+========================================================= */
+
+const cells =
+    document.querySelectorAll(".cell");
+
+
+cells.forEach(function(cell) {
+
+    cell.addEventListener(
+        "click",
+        function() {
+
+            if (
+                roundFinished ||
+                matchFinished
+            ) {
+                return;
+            }
+
+
+            const position =
+                cell.dataset.position;
+
+
+            if (selectedPosition === null) {
+
+                selectPawn(position);
+
+            } else {
+
+                movePawn(position);
+
+            }
+
+        }
+    );
+
+});
+
+
+/* =========================================================
+   SON DEPLACEMENT
+========================================================= */
+
+function playMoveSound() {
+
+    try {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+            return;
+        }
+
+
+        const audio =
+            new AudioContext();
+
+
+        const oscillator =
+            audio.createOscillator();
+
+
+        const gain =
+            audio.createGain();
+
+
+        oscillator.frequency.value =
+            600;
+
+
+        gain.gain.setValueAtTime(
+            0.15,
+            audio.currentTime
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audio.currentTime + 0.15
+        );
+
+
+        oscillator.connect(gain);
+
+        gain.connect(audio.destination);
+
+
+        oscillator.start();
+
+        oscillator.stop(
+            audio.currentTime + 0.15
+        );
+
+    } catch (error) {
+
+        console.log(
+            "Son indisponible"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SON VICTOIRE
+========================================================= */
+
+function playVictorySound() {
+
+    try {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+            return;
+        }
+
+
+        const audio =
+            new AudioContext();
+
+
+        const notes = [
+            523,
+            659,
+            784,
+            1047
+        ];
+
+
+        notes.forEach(
+            function(frequency, index) {
+
+                const oscillator =
+                    audio.createOscillator();
+
+
+                const gain =
+                    audio.createGain();
+
+
+                const start =
+                    audio.currentTime +
+                    index * 0.18;
+
+
+                oscillator.frequency.value =
+                    frequency;
+
+
+                gain.gain.setValueAtTime(
+                    0.2,
+                    start
+                );
+
+
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    start + 0.17
+                );
+
+
+                oscillator.connect(gain);
+
+                gain.connect(audio.destination);
+
+
+                oscillator.start(start);
+
+                oscillator.stop(
+                    start + 0.17
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        console.log(
+            "Son victoire indisponible"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DEMARRAGE
+========================================================= */
+
+updateScore();
+
+updateInterface();
+
+</script>
+
+</body>
+</html>

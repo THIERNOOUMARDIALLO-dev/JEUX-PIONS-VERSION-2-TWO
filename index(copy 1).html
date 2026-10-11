@@ -1,0 +1,1247 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LM10 vs CR7</title>
+
+<style>
+
+/* =========================
+   PAGE
+========================= */
+
+body {
+    margin: 0;
+    padding: 20px;
+
+    font-family: Arial, sans-serif;
+
+    text-align: center;
+
+    background: #e9e9e9;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+#turn {
+    font-size: 20px;
+    font-weight: bold;
+
+    margin-bottom: 8px;
+}
+
+#message {
+    min-height: 25px;
+
+    margin-bottom: 15px;
+
+    font-weight: bold;
+}
+
+
+/* =========================
+   PLATEAU
+========================= */
+
+#board {
+
+    width: 306px;
+    height: 306px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 100px);
+
+    grid-template-rows:
+        repeat(3, 100px);
+
+    gap: 3px;
+}
+
+
+/* =========================
+   CASES
+========================= */
+
+.cell {
+
+    width: 100px;
+    height: 100px;
+
+    box-sizing: border-box;
+
+    border: 2px solid black;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    position: relative;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+
+/* couleurs */
+
+.white {
+    background: white;
+    color: black;
+}
+
+.blue {
+    background: blue;
+    color: white;
+}
+
+.black {
+    background: black;
+    color: white;
+}
+
+
+/* =========================
+   NOM DES CASES
+========================= */
+
+.label {
+
+    position: absolute;
+
+    top: 5px;
+    left: 6px;
+
+    font-size: 12px;
+
+    pointer-events: none;
+}
+
+
+/* =========================
+   PIONS
+========================= */
+
+.piece {
+
+    width: 48px;
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    border: 3px solid white;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    /*
+       Très important :
+       le pion existe directement
+       dans le HTML.
+    */
+}
+
+
+/* LM10 */
+
+.red {
+
+    background: red;
+
+    color: white;
+}
+
+
+/* CR7 */
+
+.yellow {
+
+    background: yellow;
+
+    color: black;
+
+    border-color: black;
+}
+
+
+/* =========================
+   PION SELECTIONNE
+========================= */
+
+.selected {
+
+    outline: 4px solid lime;
+
+    transform: scale(1.12);
+}
+
+
+/* =========================
+   BOUTONS
+========================= */
+
+button {
+
+    margin: 20px 5px 0;
+
+    padding: 12px 20px;
+
+    border: 0;
+
+    border-radius: 6px;
+
+    background: #222;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+button:hover {
+
+    background: #444;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<h1>⚽ LM10 vs CR7 ⚽</h1>
+
+
+<div id="turn">
+    Tour de LM10
+</div>
+
+
+<div id="message">
+    Cliquez sur un pion rouge.
+</div>
+
+
+<!-- =================================================
+     PLATEAU
+
+     LES CASES ET LES PIONS SONT DIRECTEMENT
+     DANS LE HTML.
+
+     A E B
+     H O F
+     D G C
+================================================= -->
+
+<div id="board">
+
+
+    <!-- A -->
+
+    <div
+        class="cell white"
+        data-position="A"
+    >
+
+        <span class="label">A</span>
+
+        <div
+            class="piece red"
+            data-position="A"
+        >
+            1
+        </div>
+
+    </div>
+
+
+    <!-- E -->
+
+    <div
+        class="cell blue"
+        data-position="E"
+    >
+
+        <span class="label">E</span>
+
+        <div
+            class="piece yellow"
+            data-position="E"
+        >
+            2
+        </div>
+
+    </div>
+
+
+    <!-- B -->
+
+    <div
+        class="cell black"
+        data-position="B"
+    >
+
+        <span class="label">B</span>
+
+        <div
+            class="piece red"
+            data-position="B"
+        >
+            2
+        </div>
+
+    </div>
+
+
+    <!-- H -->
+
+    <div
+        class="cell blue"
+        data-position="H"
+    >
+
+        <span class="label">H</span>
+
+    </div>
+
+
+    <!-- O -->
+
+    <div
+        class="cell black"
+        data-position="O"
+    >
+
+        <span class="label">O</span>
+
+    </div>
+
+
+    <!-- F -->
+
+    <div
+        class="cell white"
+        data-position="F"
+    >
+
+        <span class="label">F</span>
+
+        <div
+            class="piece yellow"
+            data-position="F"
+        >
+            3
+        </div>
+
+    </div>
+
+
+    <!-- D -->
+
+    <div
+        class="cell black"
+        data-position="D"
+    >
+
+        <span class="label">D</span>
+
+        <div
+            class="piece yellow"
+            data-position="D"
+        >
+            1
+        </div>
+
+    </div>
+
+
+    <!-- G -->
+
+    <div
+        class="cell white"
+        data-position="G"
+    >
+
+        <span class="label">G</span>
+
+    </div>
+
+
+    <!-- C -->
+
+    <div
+        class="cell blue"
+        data-position="C"
+    >
+
+        <span class="label">C</span>
+
+        <div
+            class="piece red"
+            data-position="C"
+        >
+            3
+        </div>
+
+    </div>
+
+</div>
+
+
+<button id="continueButton">
+    CONTINUER
+</button>
+
+<button id="stopButton">
+    ARRÊTER
+</button>
+
+
+<script>
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let currentPlayer = "LM10";
+
+let selectedPosition = null;
+
+let gameFinished = false;
+
+
+/* =====================================================
+   LIGNES GAGNANTES
+===================================================== */
+
+const winningLines = [
+
+    ["A", "E", "B"],
+
+    ["H", "O", "F"],
+
+    ["D", "G", "C"],
+
+    ["A", "H", "D"],
+
+    ["E", "O", "G"],
+
+    ["B", "F", "C"],
+
+    ["A", "O", "C"],
+
+    ["B", "O", "D"]
+
+];
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const board =
+    document.getElementById("board");
+
+const turnText =
+    document.getElementById("turn");
+
+const messageText =
+    document.getElementById("message");
+
+const continueButton =
+    document.getElementById("continueButton");
+
+const stopButton =
+    document.getElementById("stopButton");
+
+
+/* =====================================================
+   RECUPERER UN PION
+===================================================== */
+
+function getPiece(position) {
+
+    const cell =
+        document.querySelector(
+            '.cell[data-position="' +
+            position +
+            '"]'
+        );
+
+    if (!cell) {
+        return null;
+    }
+
+    return cell.querySelector(".piece");
+}
+
+
+/* =====================================================
+   RECUPERER LE JOUEUR D'UN PION
+===================================================== */
+
+function getPlayer(position) {
+
+    const piece =
+        getPiece(position);
+
+    if (!piece) {
+        return null;
+    }
+
+    if (piece.classList.contains("red")) {
+
+        return "LM10";
+
+    }
+
+    if (piece.classList.contains("yellow")) {
+
+        return "CR7";
+    }
+
+    return null;
+}
+
+
+/* =====================================================
+   RECUPERER LE NUMERO DU PION
+===================================================== */
+
+function getPieceNumber(position) {
+
+    const piece =
+        getPiece(position);
+
+    if (!piece) {
+        return null;
+    }
+
+    return piece.textContent.trim();
+}
+
+
+/* =====================================================
+   SELECTIONNER UN PION
+===================================================== */
+
+function selectPawn(position) {
+
+    const piece =
+        getPiece(position);
+
+
+    /* Pas de pion */
+
+    if (!piece) {
+
+        messageText.textContent =
+            "Cliquez sur votre pion.";
+
+        return;
+    }
+
+
+    /* Mauvais joueur */
+
+    if (
+        getPlayer(position) !==
+        currentPlayer
+    ) {
+
+        messageText.textContent =
+            "Ce pion appartient à l'adversaire.";
+
+        return;
+    }
+
+
+    /* Enlever ancienne sélection */
+
+    const oldSelected =
+        document.querySelector(".piece.selected");
+
+    if (oldSelected) {
+
+        oldSelected.classList.remove(
+            "selected"
+        );
+    }
+
+
+    /* Nouvelle sélection */
+
+    piece.classList.add("selected");
+
+    selectedPosition = position;
+
+
+    messageText.textContent =
+        "Pion " +
+        getPieceNumber(position) +
+        " sélectionné. Cliquez sur une case vide.";
+}
+
+
+/* =====================================================
+   DEPLACER LE PION
+===================================================== */
+
+function movePawn(targetPosition) {
+
+    /* Aucun pion sélectionné */
+
+    if (selectedPosition === null) {
+
+        return;
+    }
+
+
+    /* Même case */
+
+    if (
+        targetPosition ===
+        selectedPosition
+    ) {
+
+        const piece =
+            getPiece(selectedPosition);
+
+        if (piece) {
+
+            piece.classList.remove(
+                "selected"
+            );
+        }
+
+        selectedPosition = null;
+
+        messageText.textContent =
+            "Pion désélectionné.";
+
+        return;
+    }
+
+
+    /* Vérifier si la destination est occupée */
+
+    const destinationPiece =
+        getPiece(targetPosition);
+
+
+    if (destinationPiece) {
+
+        /*
+         * Si c'est notre pion,
+         * on sélectionne celui-ci.
+         */
+
+        if (
+            getPlayer(targetPosition) ===
+            currentPlayer
+        ) {
+
+            selectPawn(targetPosition);
+
+            return;
+        }
+
+
+        messageText.textContent =
+            "Cette case est occupée.";
+
+        return;
+    }
+
+
+    /* Récupérer le pion sélectionné */
+
+    const selectedPiece =
+        getPiece(selectedPosition);
+
+
+    if (!selectedPiece) {
+
+        selectedPosition = null;
+
+        return;
+    }
+
+
+    /* Récupérer la case destination */
+
+    const targetCell =
+        document.querySelector(
+            '.cell[data-position="' +
+            targetPosition +
+            '"]'
+        );
+
+
+    if (!targetCell) {
+
+        return;
+    }
+
+
+    /*
+     * ENLEVER LE PION DE SON ANCIENNE CASE
+     */
+
+    selectedPiece.remove();
+
+
+    /*
+     * PLACER LE PION DANS LA NOUVELLE CASE
+     */
+
+    targetCell.appendChild(
+        selectedPiece
+    );
+
+
+    /*
+     * Mettre à jour sa position
+     */
+
+    selectedPiece.dataset.position =
+        targetPosition;
+
+
+    /*
+     * Enlever la sélection
+     */
+
+    selectedPiece.classList.remove(
+        "selected"
+    );
+
+    selectedPosition = null;
+
+
+    /* Son */
+
+    playMoveSound();
+
+
+    /* Vérifier victoire */
+
+    const winner =
+        checkWinner();
+
+
+    if (winner !== null) {
+
+        gameFinished = true;
+
+        turnText.textContent =
+            "🏆 " + winner + " A GAGNÉ !";
+
+        messageText.textContent =
+            "Félicitations à " +
+            winner +
+            " !";
+
+        playVictorySound();
+
+        return;
+    }
+
+
+    /*
+     * CHANGEMENT DE JOUEUR
+     */
+
+    if (
+        currentPlayer ===
+        "LM10"
+    ) {
+
+        currentPlayer = "CR7";
+
+    } else {
+
+        currentPlayer = "LM10";
+    }
+
+
+    updateInterface();
+}
+
+
+/* =====================================================
+   VERIFIER LA VICTOIRE
+===================================================== */
+
+function checkWinner() {
+
+    for (
+        let i = 0;
+        i < winningLines.length;
+        i++
+    ) {
+
+        const line =
+            winningLines[i];
+
+
+        const player1 =
+            getPlayer(line[0]);
+
+        const player2 =
+            getPlayer(line[1]);
+
+        const player3 =
+            getPlayer(line[2]);
+
+
+        if (
+            player1 !== null &&
+            player1 === player2 &&
+            player1 === player3
+        ) {
+
+            return player1;
+        }
+    }
+
+
+    return null;
+}
+
+
+/* =====================================================
+   INTERFACE
+===================================================== */
+
+function updateInterface() {
+
+    if (gameFinished) {
+
+        return;
+    }
+
+
+    turnText.textContent =
+        "Tour de " +
+        currentPlayer;
+
+
+    if (
+        selectedPosition === null
+    ) {
+
+        if (
+            currentPlayer ===
+            "LM10"
+        ) {
+
+            messageText.textContent =
+                "Cliquez sur un pion rouge.";
+
+        } else {
+
+            messageText.textContent =
+                "Cliquez sur un pion jaune.";
+        }
+
+    } else {
+
+        messageText.textContent =
+            "Cliquez sur la case où vous voulez envoyer le pion.";
+    }
+}
+
+
+/* =====================================================
+   CLIC SUR LES CASES
+===================================================== */
+
+const cells =
+    document.querySelectorAll(".cell");
+
+
+cells.forEach(function(cell) {
+
+    cell.addEventListener(
+        "click",
+        function() {
+
+            const position =
+                cell.dataset.position;
+
+
+            /*
+             * Aucun pion sélectionné :
+             * on cherche à sélectionner
+             * le pion de cette case.
+             */
+
+            if (
+                selectedPosition === null
+            ) {
+
+                selectPawn(position);
+
+                return;
+            }
+
+
+            /*
+             * Un pion est sélectionné :
+             * cette case devient la destination.
+             */
+
+            movePawn(position);
+
+        }
+    );
+
+});
+
+
+/* =====================================================
+   CONTINUER
+===================================================== */
+
+continueButton.addEventListener(
+    "click",
+    function() {
+
+        /*
+         * Remettre les pions
+         * dans leurs cases d'origine.
+         */
+
+        const positions =
+            document.querySelectorAll(".cell");
+
+
+        positions.forEach(
+            function(cell) {
+
+                const piecesInCell =
+                    cell.querySelectorAll(
+                        ".piece"
+                    );
+
+                piecesInCell.forEach(
+                    function(piece) {
+
+                        piece.remove();
+                    }
+                );
+            }
+        );
+
+
+        /*
+         * A
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="A"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece red" data-position="A">1</div>'
+            );
+
+
+        /*
+         * B
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="B"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece red" data-position="B">2</div>'
+            );
+
+
+        /*
+         * C
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="C"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece red" data-position="C">3</div>'
+            );
+
+
+        /*
+         * D
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="D"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece yellow" data-position="D">1</div>'
+            );
+
+
+        /*
+         * E
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="E"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece yellow" data-position="E">2</div>'
+            );
+
+
+        /*
+         * F
+         */
+
+        document
+            .querySelector(
+                '.cell[data-position="F"]'
+            )
+            .insertAdjacentHTML(
+                "beforeend",
+                '<div class="piece yellow" data-position="F">3</div>'
+            );
+
+
+        currentPlayer = "LM10";
+
+        selectedPosition = null;
+
+        gameFinished = false;
+
+        updateInterface();
+
+    }
+);
+
+
+/* =====================================================
+   ARRETER
+===================================================== */
+
+stopButton.addEventListener(
+    "click",
+    function() {
+
+        gameFinished = true;
+
+        selectedPosition = null;
+
+        turnText.textContent =
+            "PARTIE ARRÊTÉE";
+
+        messageText.textContent =
+            "La partie est arrêtée.";
+
+    }
+);
+
+
+/* =====================================================
+   SON DE DEPLACEMENT
+===================================================== */
+
+function playMoveSound() {
+
+    try {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+
+            return;
+        }
+
+
+        const audio =
+            new AudioContext();
+
+
+        const oscillator =
+            audio.createOscillator();
+
+
+        const gain =
+            audio.createGain();
+
+
+        oscillator.frequency.value =
+            600;
+
+
+        gain.gain.setValueAtTime(
+            0.15,
+            audio.currentTime
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.001,
+            audio.currentTime + 0.15
+        );
+
+
+        oscillator.connect(gain);
+
+        gain.connect(
+            audio.destination
+        );
+
+
+        oscillator.start();
+
+        oscillator.stop(
+            audio.currentTime + 0.15
+        );
+
+    } catch (error) {
+
+        console.log(
+            "Son indisponible"
+        );
+    }
+}
+
+
+/* =====================================================
+   SON DE VICTOIRE
+===================================================== */
+
+function playVictorySound() {
+
+    try {
+
+        const AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+
+            return;
+        }
+
+
+        const audio =
+            new AudioContext();
+
+
+        const notes = [
+            523,
+            659,
+            784,
+            1047
+        ];
+
+
+        notes.forEach(
+            function(
+                frequency,
+                index
+            ) {
+
+                const oscillator =
+                    audio.createOscillator();
+
+
+                const gain =
+                    audio.createGain();
+
+
+                const start =
+                    audio.currentTime +
+                    index * 0.18;
+
+
+                oscillator.frequency.value =
+                    frequency;
+
+
+                gain.gain.setValueAtTime(
+                    0.2,
+                    start
+                );
+
+
+                gain.gain.exponentialRampToValueAtTime(
+                    0.001,
+                    start + 0.17
+                );
+
+
+                oscillator.connect(gain);
+
+                gain.connect(
+                    audio.destination
+                );
+
+
+                oscillator.start(start);
+
+                oscillator.stop(
+                    start + 0.17
+                );
+
+            }
+        );
+
+    } catch (error) {
+
+        console.log(
+            "Son victoire indisponible"
+        );
+    }
+}
+
+</script>
+
+</body>
+
+</html>
+```

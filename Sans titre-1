@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu LM10 vs CR7</title>
+    <style>
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid black;
+            font-size: 20px;
+            position: relative;
+        }
+        .piece {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+        }
+        .red { background-color: red; }
+        .yellow { background-color: yellow; color: black; }
+        .buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Jeu LM10 vs CR7</h2>
+    <div class="board" id="gameBoard">
+        <!-- Les cases du plateau de jeu -->
+    </div>
+    <div class="buttons">
+        <button onclick="resetGame()">CONTINUER</button>
+        <button onclick="alert('Partie arrêtée')">ARRÊTER</button>
+    </div>
+    <script>
+        const board = document.getElementById("gameBoard");
+        const positions = ["A", "E", "B", "H", "O", "F", "D", "G", "C"];
+        let selectedPiece = null;
+        let currentPlayer = "LM10"; // Le joueur qui doit jouer
+        
+        const players = {
+            "LM10": ["red", "1", "2", "3"],
+            "CR7": ["yellow", "1", "2", "3"]
+        };
+        
+        const pieces = {
+            "A": { player: "LM10", id: "1" },
+            "B": { player: "LM10", id: "2" },
+            "C": { player: "LM10", id: "3" },
+            "D": { player: "CR7", id: "1" },
+            "E": { player: "CR7", id: "2" },
+            "F": { player: "CR7", id: "3" }
+        };
+        
+        function renderBoard() {
+            board.innerHTML = "";
+            positions.forEach(pos => {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.innerText = pos;
+                cell.onclick = () => movePiece(pos);
+                
+                if (pieces[pos]) {
+                    const pieceData = pieces[pos];
+                    const piece = document.createElement("div");
+                    piece.classList.add("piece", players[pieceData.player][0]);
+                    piece.innerText = pieceData.id;
+                    piece.onclick = (event) => {
+                        event.stopPropagation();
+                        if (pieceData.player === currentPlayer) {
+                            selectedPiece = pos;
+                        }
+                    };
+                    cell.appendChild(piece);
+                }
+                
+                board.appendChild(cell);
+            });
+        }
+        
+        function movePiece(targetPos) {
+            if (selectedPiece && !pieces[targetPos]) {
+                pieces[targetPos] = pieces[selectedPiece];
+                delete pieces[selectedPiece];
+                selectedPiece = null;
+                checkWin();
+                togglePlayer();
+                renderBoard();
+            }
+        }
+        
+        function togglePlayer() {
+            currentPlayer = currentPlayer === "LM10" ? "CR7" : "LM10";
+        }
+        
+        function checkWin() {
+            const winningLines = [
+                ["A", "E", "C"], ["D", "O", "B"], ["H", "O", "F"],
+                ["A", "H", "D"], ["C", "F", "G"], ["B", "O", "F"],
+                ["A", "O", "C"], ["D", "O", "G"]
+            ];
+            
+            for (let line of winningLines) {
+                const [p1, p2, p3] = line;
+                if (pieces[p1] && pieces[p2] && pieces[p3] &&
+                    pieces[p1].player === pieces[p2].player &&
+                    pieces[p1].player === pieces[p3].player) {
+                    alert(`${pieces[p1].player} a gagné !`);
+                    return;
+                }
+            }
+        }
+        
+        function resetGame() {
+            location.reload();
+        }
+        
+        renderBoard();
+    </script>
+</body>
+</html>
